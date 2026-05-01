@@ -51,6 +51,7 @@ class UserConfig extends ChangeNotifier {
       mpvVersion = prefs.getString('playerConfig.mpvVersion'),
       autoForceLandscape = prefs.getBool('playerConfig.autoForceLandscape') ?? false,
       displayScale = prefs.getDouble('system.displayScale') ?? 1,
+      password = prefs.getString('system.password') ?? '0591',
       showPerformanceOverlay = false;
   final SharedPreferences prefs;
   SystemLanguage language;
@@ -65,11 +66,17 @@ class UserConfig extends ChangeNotifier {
   bool autoForceLandscape;
   bool autoPip;
   double displayScale;
+  String password;
   bool showPerformanceOverlay;
 
   static Future<UserConfig> init() async {
     final prefs = await SharedPreferences.getInstance();
     return UserConfig._fromPrefs(prefs);
+  }
+
+  void setPassword(String pwd) {
+    password = pwd;
+    prefs.setString('system.password', password);
   }
 
   void setAutoUpdate(AutoUpdateFrequency f) {

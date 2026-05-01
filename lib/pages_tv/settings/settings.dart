@@ -1,11 +1,16 @@
 import 'package:api/api.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../const.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/user_config.dart';
 import '../../utils/utils.dart';
+import '../components/filled_button.dart';
 import '../components/setting.dart';
+import '../components/text_button.dart';
+import '../components/text_field_focus.dart';
 import '../utils/utils.dart';
 import 'settings_about.dart';
 import 'settings_account.dart';
@@ -38,20 +43,30 @@ class SettingsPage extends StatelessWidget {
           ButtonSettingItem(
             title: Text(AppLocalizations.of(context)!.settingsItemTV),
             leading: const Icon(Icons.tv),
-            onTap:
-                () => navigateToSlideLeft(
-                  context,
-                  LibraryManage(title: AppLocalizations.of(context)!.settingsItemTV, type: LibraryType.tv),
-                ),
+            onTap: () async {
+              if (await verifyPassword(context)) {
+                if (context.mounted) {
+                  navigateToSlideLeft(
+                    context,
+                    LibraryManage(title: AppLocalizations.of(context)!.settingsItemTV, type: LibraryType.tv),
+                  );
+                }
+              }
+            },
           ),
           ButtonSettingItem(
             title: Text(AppLocalizations.of(context)!.settingsItemMovie),
             leading: const Icon(Icons.movie_creation_outlined),
-            onTap:
-                () => navigateToSlideLeft(
-                  context,
-                  LibraryManage(title: AppLocalizations.of(context)!.settingsItemMovie, type: LibraryType.movie),
-                ),
+            onTap: () async {
+              if (await verifyPassword(context)) {
+                if (context.mounted) {
+                  navigateToSlideLeft(
+                    context,
+                    LibraryManage(title: AppLocalizations.of(context)!.settingsItemMovie, type: LibraryType.movie),
+                  );
+                }
+              }
+            },
           ),
           const DividerSettingItem(),
           ButtonSettingItem(
@@ -79,6 +94,54 @@ class SettingsPage extends StatelessWidget {
             title: Text(AppLocalizations.of(context)!.settingsItemLog),
             leading: const Icon(Icons.article_outlined),
             onTap: () => navigateToSlideLeft(context, const SettingsLogPage()),
+          ),
+          ButtonSettingItem(
+            title: const Text('修改密码'),
+            leading: const Icon(Icons.password_outlined),
+            onTap: () async {
+              if (await verifyPassword(context)) {
+                while (true) {
+                  if (!context.mounted) return;
+                  final newPwd = await inputPassword(context, title: '请输入新密码');
+                  if (newPwd != null && newPwd.isNotEmpty) {
+                    if (!context.mounted) return;
+                    final confirmPwd = await inputPassword(context, title: '请再次输入新密码');
+                    if (confirmPwd == newPwd) {
+                      if (context.mounted) {
+                        context.read<UserConfig>().setPassword(newPwd);
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('密码修改成功')));
+                      }
+                      break;
+                    } else {
+                      if (context.mounted) {
+                        final retry = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('提示'),
+                            content: const Text('两次输入的密码不一致！'),
+                            actions: [
+                              TVTextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('确认'),
+                              ),
+                              TVFilledButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text('重试'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (retry != true) break;
+                      } else {
+                        break;
+                      }
+                    }
+                  } else {
+                    break;
+                  }
+                }
+              }
+            },
           ),
           ButtonSettingItem(
             title: Text(AppLocalizations.of(context)!.settingsItemOthers),
@@ -115,3 +178,4 @@ class SettingsPage extends StatelessWidget {
     );
   }
 }
+

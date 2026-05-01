@@ -124,6 +124,7 @@ class _TVListPageState extends State<TVListPage> {
                                   autofocus: true,
                                   child: Text(AppLocalizations.of(context)!.settingsItemTV),
                                   onPressed: () async {
+                                    if (!await verifyPassword(context)) return;
                                     Scaffold.of(context).openEndDrawer();
                                     await Future.delayed(const Duration(milliseconds: 100));
                                     if (context.mounted) {

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../components/future_builder_handler.dart';
 import '../../l10n/app_localizations.dart';
 import '../../utils/utils.dart';
+import '../utils/utils.dart';
 import '../components/image_card.dart';
 import '../detail/movie.dart';
 import '../library.dart';
@@ -50,7 +51,13 @@ class _MovieListPageState extends State<MovieListPage> {
                 noDataBuilder:
                     (context) => FilledButton(
                       child: Text(AppLocalizations.of(context)!.settingsItemMovie),
-                      onPressed: () => navigateTo(context, const LibraryManage(type: LibraryType.movie)),
+                      onPressed: () async {
+                        if (await verifyPassword(context)) {
+                          if (context.mounted) {
+                            navigateTo(context, const LibraryManage(type: LibraryType.movie));
+                          }
+                        }
+                      },
                     ),
                 itemBuilder: (BuildContext context, int index) {
                   final item = snapshot.requireData[index];

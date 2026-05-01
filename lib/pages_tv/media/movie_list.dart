@@ -114,6 +114,7 @@ class _MovieListPageState extends State<MovieListPage> {
                                   autofocus: true,
                                   child: Text(AppLocalizations.of(context)!.settingsItemMovie),
                                   onPressed: () async {
+                                    if (!await verifyPassword(context)) return;
                                     Scaffold.of(context).openEndDrawer();
                                     await Future.delayed(const Duration(milliseconds: 100));
                                     if (context.mounted) {
